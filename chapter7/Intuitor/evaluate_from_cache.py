@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: gbk -*-
 """
 从 lighteval 缓存的 parquet 文件中提取答案并计算 GSM8K 准确率
 支持 \\boxed{} 和 #### 两种答案格式
@@ -172,30 +173,30 @@ def load_gsm8k_answers(split: str = "test") -> dict:
                 normalized = normalize_number(normalized)
             answers[idx] = normalized
         
-        print(f"✅ 加载了 {len(answers)} 个金标答案")
+        print(f"\u2705 加载了 {len(answers)} 个金标答案")
         return answers
     except ImportError:
-        print("❌ 错误：需要安装 datasets 库")
+        print("\u274c 错误：需要安装 datasets 库")
         print("运行：pip install datasets")
         return {}
     except Exception as e:
-        print(f"❌ 加载金标答案时出错: {e}")
+        print(f"\u274c 加载金标答案时出错: {e}")
         return {}
 
 
 def evaluate_from_parquet(parquet_path: str, verbose: bool = False):
     """从 parquet 文件评测"""
-    print(f"📂 读取预测结果: {parquet_path}")
+    print(f"\U0001f4c2 读取预测结果: {parquet_path}")
     df = pd.read_parquet(parquet_path)
     
-    print(f"📊 总样本数: {len(df)}")
+    print(f"\U0001f4ca 总样本数: {len(df)}")
     
     # 加载金标答案
-    print("📥 加载 GSM8K 金标答案...")
+    print("\U0001f4e5 加载 GSM8K 金标答案...")
     gold_answers = load_gsm8k_answers()
     
     if not gold_answers:
-        print("❌ 无法加载金标答案，退出")
+        print("\u274c 无法加载金标答案，退出")
         return
     
     # 评测
@@ -219,7 +220,7 @@ def evaluate_from_parquet(parquet_path: str, verbose: bool = False):
             sample_id = int(sample_id)
         except (TypeError, ValueError):
             if verbose:
-                print(f"⚠️  样本 {sample_id}: 无法转换为整数")
+                print(f"\u26a0\ufe0f  样本 {sample_id}: 无法转换为整数")
             continue
         
         # 提取模型输出
@@ -240,7 +241,7 @@ def evaluate_from_parquet(parquet_path: str, verbose: bool = False):
         
         if gold_answer is None:
             if verbose and idx < 5:
-                print(f"⚠️  样本 {sample_id}: 找不到金标答案")
+                print(f"\u26a0\ufe0f  样本 {sample_id}: 找不到金标答案")
             continue
         
         total += 1
@@ -260,13 +261,13 @@ def evaluate_from_parquet(parquet_path: str, verbose: bool = False):
             print(f"\n样本 {sample_id}:")
             print(f"  预测: {pred_answer}")
             print(f"  金标: {gold_answer}")
-            print(f"  正确: {'✅' if is_correct else '❌'}")
+            print(f"  正确: {'\u2705' if is_correct else '\u274c'}")
     
     # 计算准确率
     accuracy = correct / total * 100 if total > 0 else 0
     
     print("\n" + "="*80)
-    print("📈 评测结果")
+    print("\U0001f4c8 评测结果")
     print("="*80)
     print(f"总样本数: {total}")
     print(f"正确数量: {correct}")
@@ -276,7 +277,7 @@ def evaluate_from_parquet(parquet_path: str, verbose: bool = False):
     
     # 显示部分错误样本
     if errors and verbose:
-        print("\n❌ 前 10 个错误样本:")
+        print("\n\u274c 前 10 个错误样本:")
         for i, error in enumerate(errors[:10], 1):
             print(f"\n{i}. 样本 {error['sample_id']}:")
             print(f"   预测: {error['predicted']}")
@@ -300,7 +301,7 @@ def main():
     args = parser.parse_args()
     
     if not Path(args.parquet_file).exists():
-        print(f"❌ 错误：文件不存在: {args.parquet_file}")
+        print(f"\u274c 错误：文件不存在: {args.parquet_file}")
         return
     
     results = evaluate_from_parquet(args.parquet_file, verbose=args.verbose)
@@ -309,7 +310,7 @@ def main():
         import json
         with open(args.output, 'w') as f:
             json.dump(results, f, indent=2, ensure_ascii=False)
-        print(f"\n💾 结果已保存到: {args.output}")
+        print(f"\n\U0001f4be 结果已保存到: {args.output}")
 
 
 if __name__ == "__main__":
